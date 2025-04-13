@@ -1,35 +1,37 @@
+__all__ = ["create_chart"]
+DEFAULT_ROW_LABELS = object()
+
+def _format_header(header, header_type):
+    return [None] + [{header_type: col} for col in header]
+
+def _generate_row_labels(row_labels, count):
+    if row_labels is DEFAULT_ROW_LABELS:
+        return [f"Row{i+1}" for i in range(count)]
+    return row_labels
+
+def _empty_row(length):
+    return [{"string": ""}] + [None] * (length - 1)
+
+def _format_cell(val, data_type, fill=None):
+    cell = {data_type: val}
+    if fill:
+        cell["fill"] = fill
+    return cell
+
+def _apply_cell_settings(val, j, row_config):
+    col_config: dict = row_config.get(j + 1, {})
+    data_type = col_config.get("data_type", row_config.get("data_type", "number"))
+    fill = col_config.get("fill", row_config.get("fill"))
+    return _format_cell(val, data_type, fill)
+
+def _format_data_row(label, row_data, row_config):
+    formatted_row = [{"string": label}]
+    for j, val in enumerate(row_data):
+        formatted_row.append(_apply_cell_settings(val, j, row_config))
+    return formatted_row
 
 
-__all__ = ["create_text_box"]
-
-def create_text_box(name, text):
-    """
-    Create a simple text box represented as a dictionary with a name and table.
-
-    Args:
-        name (str): The name of the text box.
-        text (str): The text content to display inside the box.
-
-    Returns:
-        dict: A dictionary containing the name and a table with a single cell containing the text.
-
-    Example:
-        >>> create_text_box(name="Greeting", text="Hello, world!")
-        {
-        'name': 'Greeting',
-        'table': [[{'string': 'Hello, world!'}]]
-    }
-    """
-    return {
-        "name": f"{name}",
-        "table": [[{"string": f"{text}"}]]
-    }
-
-
-
-
-DEFUALT_ROW_LABELS = object()
-def create_chart(chart_name, header, header_type="string", row_labels=DEFUALT_ROW_LABELS, *rows, row_settings=None):
+def create_chart(chart_name, header, header_type="string", row_labels=DEFAULT_ROW_LABELS, *rows, row_settings=None):
     """
     Create a chart structure represented as a dictionary with a name and a table.
 
@@ -43,7 +45,7 @@ def create_chart(chart_name, header, header_type="string", row_labels=DEFUALT_RO
             - "data_type" (str): Default data type for all cells in the row (e.g., "number", "string").
             - int keys (1-based column indices): Individual cell config dictionaries with optional keys:
             - "data_type" (str): Overrides the row's default data type for this cell.
-            - "fill" (str): Fill color for the cell (e.g., "red", "blue").
+            - "fill" (str: hex): Fill color for the cell (e.g., "#ff0000").
 
     Returns:
         dict: A dictionary with keys "name" and "table", representing the chart.
@@ -74,7 +76,7 @@ def create_chart(chart_name, header, header_type="string", row_labels=DEFUALT_RO
         ...     row_settings={
         ...         0: {
         ...             "data_type": "number",
-        ...             1: {"fill": "blue"}
+        ...             1: {"fill": "#ff0000"}
         ...         }
         ...     }
         ... )
@@ -86,60 +88,22 @@ def create_chart(chart_name, header, header_type="string", row_labels=DEFUALT_RO
         ]}
     """
 
-    header = [None] + [{f"{header_type}": f"{value}"} for value in header]
-
-    if row_labels is DEFUALT_ROW_LABELS:
-        row_labels = [f"Row{i+1}" for i in range(len(rows))]
-
-    if row_settings is None:
-        row_settings = {}
-
+    header_row = _format_header(header, header_type)
+    row_labels = _generate_row_labels(row_labels, len(rows))
+    row_settings = row_settings or {}
 
     if len(row_labels) != len(rows):
-        raise ValueError(f"Antallet af row_labels ({len(row_labels)}) skal matche antallet af datarækker ({len(rows)}).")
+        raise ValueError(
+            f"Numbers of row_labels ({len(row_labels)}) should match the number of rows ({len(rows)})."
+        )
 
-    table = [header]
-
-    empty_row = [{"string": ""}] + [None] * (len(header) - 1)
-
-    table.append(empty_row)
+    table = [header_row, _empty_row(len(header))]
 
     for i, (label, row_data) in enumerate(zip(row_labels, rows)):
-        row_config: dict = row_settings.get(i, {})  
-        formatted_row = [{"string": label}]
+        settings = row_settings.get(i, {})
+        table.append(_format_data_row(label, row_data, settings))
 
-        for j, val in enumerate(row_data):
-            cell_options = {}
-
-            if (j + 1) in row_config:
-                cell_options = row_config[j + 1]
-
-
-            data_type = cell_options.get("data_type", row_config.get("data_type", "number"))
-            cell_data = {data_type: val}
-
-            if "fill" in cell_options:
-                cell_data["fill"] = cell_options["fill"]
-
-            elif "fill" in row_config:
-                cell_data["fill"] = row_config["fill"]
-
-            formatted_row.append(cell_data)
-        table.append(formatted_row)
-
- 
-
-    return {
-        "name": chart_name,
-        "table": table
-    }
-
-
-
-
-
-
-
+    return {"name": chart_name, "table": table}
 
 
 
