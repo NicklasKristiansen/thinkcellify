@@ -1,5 +1,3 @@
-
-
 __all__ = ["create_text_box"]
 
 def create_text_box(name, text):
