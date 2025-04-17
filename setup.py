@@ -5,7 +5,7 @@ if __name__ == "__main__":
         name="thinkcellify",
         packages=["thinkcellify"],
         version="0.1.dev0"
-    )
+)
 
 
 

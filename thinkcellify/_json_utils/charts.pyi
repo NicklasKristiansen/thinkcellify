@@ -1,5 +1,6 @@
 from typing import TypeAlias, Literal
 
+
 DataType: TypeAlias = Literal["string", "number", "date", "percentage"]
 
 def create_chart(
