@@ -6,8 +6,6 @@ from ._chart_utils import (
     DEFAULT_ROW_LABELS
 )
 
-print("id charts: ", id(DEFAULT_ROW_LABELS))
-
 __all__ = ["create_chart", "DEFAULT_ROW_LABELS"]
 
 def create_chart(chart_name, header, header_type="string", row_labels=DEFAULT_ROW_LABELS, *rows, row_settings=None):
