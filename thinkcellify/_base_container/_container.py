@@ -1,15 +1,10 @@
 from thinkcellify import _json_utils
 import pathlib
 
-
 NO_NAME_PROVIDED = object()
 DEFAULT_ROW_LABELS = _json_utils._chart_utils.DEFAULT_ROW_LABELS
 
-
-
-
 class BaseContainer:
-
     def _validate_path(self, path):
         if not path.exists():
             raise FileNotFoundError(f"File not found: {path}")
@@ -26,7 +21,6 @@ class BaseContainer:
         self.template = pathlib.Path(template)
         self._validate_path(self.template)
         
-
         if slide_elements:
             for e in slide_elements:
                 self._validate_element(e)
