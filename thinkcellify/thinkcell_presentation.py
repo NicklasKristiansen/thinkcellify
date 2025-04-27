@@ -16,8 +16,7 @@ class Presentation(_base_container.BaseContainer):
     def add_text_box(self, name, text):
         self.append(_json_utils.create_text_box(name, text))
 
-
-    def to_powerpoint(self, output: str):
+    def to_powerpoint(self, output):
         output_path = str(output).split(".pptx")[0]
         with _cli_utils._create_ppttc(self.template, output_path, *self._elements) as ppttc_file:
             command = [

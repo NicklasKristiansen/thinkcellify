@@ -14,7 +14,7 @@ def _create_ppttc(template, output, *elements):
         ]
 
     json_structure = json.dumps(data, indent=2)
-
+    
     try:
         with open(ppttc_file, "w", encoding="utf-8") as file:
             file.write(json_structure)
